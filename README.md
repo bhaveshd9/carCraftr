@@ -1,1 +1,2 @@
 # carCraftr
+Carcraftr, focuses on developing innovative solutions for the automotive industry, providing web and iOS applications that streamline various processes for car enthusiasts and professionals alike. 
