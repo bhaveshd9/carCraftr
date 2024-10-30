@@ -1,0 +1,44 @@
+.news-detail {
+    max-width: 800px; /* Set a maximum width for the container */
+    margin: 0 auto; /* Center the container */
+    padding: 20px; /* Add some padding */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add some shadow for depth */
+    background-color: #fff; /* Background color for contrast */
+  }
+  
+  .news-detail-image {
+    width: 100%; /* Make the image responsive */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 8px; /* Optional: Rounded corners */
+  }
+  
+  .news-detail h2 {
+    font-size: 1.5em; /* Adjust the title size */
+    margin: 20px 0 10px; /* Spacing around the title */
+  }
+  
+  .news-detail-description {
+    font-size: 1.1em; /* Adjust description size */
+    color: #666; /* Optional: Lighter text color */
+    margin-bottom: 20px; /* Space below description */
+  }
+  
+  .news-detail-body p {
+    line-height: 1.6; /* Improve readability with line height */
+    margin-bottom: 10px; /* Space between paragraphs */
+  }
+  
+  .news-detail p {
+    font-size: 1.1em; /* Smaller font size for the source link */
+    color: #1d1d1e; /* Link color */
+    text-align: center;
+  }
+  
+  .news-detail a {
+    text-decoration: none; /* Remove underline from links */
+  }
+  
+  .news-detail a:hover {
+    text-decoration: underline; /* Add underline on hover */
+  }
+  

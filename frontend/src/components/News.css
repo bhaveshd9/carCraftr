@@ -1,0 +1,46 @@
+.news-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  .news-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    width: 300px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+  
+  .news-card:hover {
+    transform: scale(1.03);
+  }
+  
+  .news-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .news-content {
+    padding: 10px;
+  }
+  
+  .news-title {
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .news-description {
+    font-size: 1em;
+    color: #666;
+  }
+  
+  .published-at {
+    margin-top: 15px;
+    font-size: 0.9em; /* Set to a desired size */
+    color: rgb(129, 127, 127); /* You might want to differentiate this */
+    margin: 5px 0; /* Add spacing */
+  }

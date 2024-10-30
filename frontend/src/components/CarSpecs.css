@@ -1,0 +1,44 @@
+/* CarSpecs.css */
+.car-specs-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    background-color: #fdfbfb;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .car-specs-image {
+    max-width: 100%;
+    height: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+  }
+  
+  .specifications {
+    text-align: left;
+    padding: 10px;
+  }
+  
+  .specifications p {
+    font-size: 18px;
+    margin: 8px 0;
+    color:#080808;
+  }
+
+  p {
+    margin-top: 0px; /* Reduced margin for better spacing */
+    text-align: center;
+    font-size: 1.2rem;
+    color: #0e0e0e; /* Ensure text is readable on the background */
+  }
+
+  h9 {
+    margin-top: 15px; /* Move the heading a little higher */
+    margin-left: 5px;
+    font-size: 1.5rem;
+    color: #0f0f0f;
+  }
+  
+ 
