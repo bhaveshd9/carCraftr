@@ -1,0 +1,237 @@
+.market-analysis {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin: 2rem 0;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1rem;
+  overflow-x: auto;
+}
+
+.tabs button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: none;
+  color: #666;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  border-radius: 4px;
+}
+
+.tabs button:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.tabs button.active {
+  background: #0066cc;
+  color: white;
+}
+
+.content {
+  min-height: 400px;
+}
+
+.chart-container {
+  padding: 1rem;
+}
+
+.chart-container h3 {
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-size: 1.25rem;
+}
+
+.best-time-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.best-time-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.month-indicator {
+  margin-bottom: 1.5rem;
+}
+
+.month {
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #0066cc;
+  margin-bottom: 0.5rem;
+}
+
+.discount {
+  display: inline-block;
+  background: #e6f3ff;
+  color: #0066cc;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.reason {
+  color: #666;
+  line-height: 1.6;
+}
+
+.dealer-inventory {
+  padding: 1rem;
+}
+
+.dealer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.dealer-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.dealer-card:hover {
+  transform: translateY(-5px);
+}
+
+.dealer-card h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.dealer-card p {
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+.dealer-card .location {
+  color: #0066cc;
+  font-weight: 500;
+}
+
+.dealer-card .price {
+  font-weight: 600;
+  color: #333;
+}
+
+.market-insights {
+  padding: 1rem;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.insight-card {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.insight-card h4 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.volatility-meter {
+  background: #eee;
+  height: 8px;
+  border-radius: 4px;
+  margin: 1rem 0;
+  overflow: hidden;
+}
+
+.volatility-bar {
+  height: 100%;
+  background: #0066cc;
+  transition: width 0.3s ease;
+}
+
+.trend, .position {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.trend.rising {
+  background: #e6f3ff;
+  color: #0066cc;
+}
+
+.trend.stable {
+  background: #e6ffe6;
+  color: #00cc00;
+}
+
+.trend.falling {
+  background: #ffe6e6;
+  color: #cc0000;
+}
+
+.position.strong {
+  background: #e6f3ff;
+  color: #0066cc;
+}
+
+.position.moderate {
+  background: #fff3e6;
+  color: #cc6600;
+}
+
+.position.weak {
+  background: #ffe6e6;
+  color: #cc0000;
+}
+
+.loading, .error, .no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+.error {
+  color: #cc0000;
+}
+
+@media (max-width: 768px) {
+  .market-analysis {
+    padding: 1rem;
+  }
+
+  .tabs {
+    gap: 0.5rem;
+  }
+
+  .tabs button {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .dealer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+} 

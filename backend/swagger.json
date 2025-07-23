@@ -1,0 +1,1730 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CarCraftr API",
+    "description": "A comprehensive car information and community platform API",
+    "version": "1.0.0",
+    "contact": {
+      "name": "CarCraftr Team",
+      "email": "support@carcraftr.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Development server"
+    },
+    {
+      "url": "https://api.carcraftr.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Returns the health status of the API and database connection",
+        "responses": {
+          "200": {
+            "description": "API is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "uptime": {
+                      "type": "number"
+                    },
+                    "mongodb": {
+                      "type": "string",
+                      "enum": ["connected", "disconnected"]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cars": {
+      "get": {
+        "summary": "Get cars with search and filters",
+        "description": "Retrieve cars based on search query or individual filters",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term for make, model, or year",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "make",
+            "in": "query",
+            "description": "Filter by car make",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "description": "Filter by car model",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "description": "Filter by car year",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of cars matching the criteria",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Car"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No cars found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "No cars found matching your search."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new car",
+        "description": "Add a new car to the database",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["make", "model", "year"],
+                "properties": {
+                  "make": {
+                    "type": "string",
+                    "example": "Toyota"
+                  },
+                  "model": {
+                    "type": "string",
+                    "example": "Camry"
+                  },
+                  "year": {
+                    "type": "string",
+                    "example": "2023"
+                  },
+                  "specifications": {
+                    "$ref": "#/components/schemas/CarSpecifications"
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "popularity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 100
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Car created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Car"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input data"
+          }
+        }
+      }
+    },
+    "/api/cars/popular": {
+      "get": {
+        "summary": "Get popular cars",
+        "description": "Retrieve the most popular cars based on popularity score",
+        "responses": {
+          "200": {
+            "description": "List of popular cars",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Car"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cars/recommend": {
+      "post": {
+        "summary": "Get car recommendations",
+        "description": "Get personalized car recommendations based on user preferences",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "budget": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "example": [20000, 35000]
+                  },
+                  "primaryUse": {
+                    "type": "string",
+                    "enum": ["commuting", "family", "luxury", "performance", "adventure"]
+                  },
+                  "fuelPreference": {
+                    "type": "string",
+                    "example": "gasoline"
+                  },
+                  "mustHaveFeatures": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "lifestyle": {
+                    "type": "string",
+                    "enum": ["urban", "suburban", "rural", "active", "luxury"]
+                  },
+                  "familySize": {
+                    "type": "number",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Car recommendations with match scores",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Car"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "matchScore": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                          },
+                          "matchReasons": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cars/{id}": {
+      "get": {
+        "summary": "Get car by ID",
+        "description": "Retrieve a specific car by its ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Car details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Car"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Car not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update car",
+        "description": "Update an existing car's information",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "make": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "year": {
+                    "type": "string"
+                  },
+                  "specifications": {
+                    "$ref": "#/components/schemas/CarSpecifications"
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "popularity": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Car updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Car"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Car not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete car",
+        "description": "Remove a car from the database",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Car deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Deleted Car"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Car not found"
+          }
+        }
+      }
+    },
+    "/api/news": {
+      "get": {
+        "summary": "Get all news",
+        "description": "Retrieve all news articles sorted by publication date",
+        "responses": {
+          "200": {
+            "description": "List of news articles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/News"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create news article",
+        "description": "Add a new news article",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "description", "body"],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "publishedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "News article created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/News"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/news/{id}": {
+      "get": {
+        "summary": "Get news by ID",
+        "description": "Retrieve a specific news article",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "News ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "News article details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/News"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "News article not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update news article",
+        "description": "Update an existing news article",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "News ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "imageUrl": {
+                    "type": "string",
+                    "format": "uri"
+                  },
+                  "publishedAt": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "News article updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/News"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "News article not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete news article",
+        "description": "Remove a news article",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "News ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "News article deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "News deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "News article not found"
+          }
+        }
+      }
+    },
+    "/api/blogs": {
+      "get": {
+        "summary": "Get all blogs",
+        "description": "Retrieve all blog posts sorted by creation date",
+        "responses": {
+          "200": {
+            "description": "List of blog posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create blog post",
+        "description": "Add a new blog post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "content", "author"],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "author": {
+                    "type": "string"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Blog post created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Blog"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/market/car/{carId}": {
+      "get": {
+        "summary": "Get market data for car",
+        "description": "Retrieve market data for a specific car",
+        "parameters": [
+          {
+            "name": "carId",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Market data for the car",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/market/car/{carId}/price-trends": {
+      "get": {
+        "summary": "Get price trends",
+        "description": "Retrieve price trends for a specific car",
+        "parameters": [
+          {
+            "name": "carId",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Price trends data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "date": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "price": {
+                        "type": "number"
+                      },
+                      "trend": {
+                        "type": "string",
+                        "enum": ["up", "down", "stable"]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/car/{carId}": {
+      "get": {
+        "summary": "Get reviews for car",
+        "description": "Retrieve all reviews for a specific car",
+        "parameters": [
+          {
+            "name": "carId",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of reviews",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Review"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews": {
+      "post": {
+        "summary": "Create review",
+        "description": "Add a new review for a car",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["carId", "rating", "title", "content"],
+                "properties": {
+                  "carId": {
+                    "type": "string"
+                  },
+                  "rating": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 5
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "content": {
+                    "type": "string"
+                  },
+                  "pros": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "cons": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Review created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Review"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/forums/car/{carId}": {
+      "get": {
+        "summary": "Get forum posts for car",
+        "description": "Retrieve forum posts for a specific car",
+        "parameters": [
+          {
+            "name": "carId",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by category",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Filter by tag",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort field",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "createdAt"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of forum posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ForumPost"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/maintenance/car/{carId}": {
+      "get": {
+        "summary": "Get maintenance guides for car",
+        "description": "Retrieve maintenance guides for a specific car",
+        "parameters": [
+          {
+            "name": "carId",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by category",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "difficulty",
+            "in": "query",
+            "description": "Filter by difficulty level",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["beginner", "intermediate", "advanced"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of maintenance guides",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MaintenanceGuide"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fuel-economy/car/{carId}": {
+      "get": {
+        "summary": "Get fuel economy reports for car",
+        "description": "Retrieve fuel economy reports for a specific car",
+        "parameters": [
+          {
+            "name": "carId",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "terrain",
+            "in": "query",
+            "description": "Filter by terrain type",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "climate",
+            "in": "query",
+            "description": "Filter by climate",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of fuel economy reports",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FuelEconomyReport"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/common-issues/car/{carId}": {
+      "get": {
+        "summary": "Get common issues for car",
+        "description": "Retrieve common issues reported for a specific car",
+        "parameters": [
+          {
+            "name": "carId",
+            "in": "path",
+            "required": true,
+            "description": "Car ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by category",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "description": "Filter by severity",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["low", "medium", "high", "critical"]
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by status",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["open", "resolved", "investigating"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of common issues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommonIssue"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Car": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Unique identifier for the car"
+          },
+          "make": {
+            "type": "string",
+            "description": "Car manufacturer",
+            "example": "Toyota"
+          },
+          "model": {
+            "type": "string",
+            "description": "Car model",
+            "example": "Camry"
+          },
+          "year": {
+            "type": "string",
+            "description": "Manufacturing year",
+            "example": "2023"
+          },
+          "specifications": {
+            "$ref": "#/components/schemas/CarSpecifications"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to car image"
+          },
+          "popularity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Popularity score"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CarSpecifications": {
+        "type": "object",
+        "properties": {
+          "engine": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "example": "V6"
+              },
+              "displacement": {
+                "type": "string",
+                "example": "3.5L"
+              },
+              "horsepower": {
+                "type": "number",
+                "example": 301
+              },
+              "torque": {
+                "type": "number",
+                "example": 267
+              }
+            }
+          },
+          "transmission": {
+            "type": "string",
+            "example": "8-speed automatic"
+          },
+          "drivetrain": {
+            "type": "string",
+            "example": "Front-wheel drive"
+          },
+          "fuelType": {
+            "type": "string",
+            "example": "Gasoline"
+          },
+          "seatingCapacity": {
+            "type": "number",
+            "example": 5
+          },
+          "cargoSpace": {
+            "type": "string",
+            "example": "15.1 cu ft"
+          }
+        }
+      },
+      "News": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "example": "New Electric Vehicle Launches"
+          },
+          "description": {
+            "type": "string",
+            "example": "Latest electric vehicle models hit the market"
+          },
+          "body": {
+            "type": "string",
+            "example": "Full article content..."
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Blog": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "example": "Car Maintenance Tips"
+          },
+          "content": {
+            "type": "string",
+            "example": "Blog post content..."
+          },
+          "author": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": ["maintenance", "tips", "cars"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MarketData": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "carId": {
+            "type": "string"
+          },
+          "priceTrends": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "price": {
+                  "type": "number"
+                },
+                "trend": {
+                  "type": "string",
+                  "enum": ["up", "down", "stable"]
+                }
+              }
+            }
+          },
+          "resaleValues": {
+            "type": "object",
+            "properties": {
+              "oneYear": {
+                "type": "number"
+              },
+              "threeYear": {
+                "type": "number"
+              },
+              "fiveYear": {
+                "type": "number"
+              }
+            }
+          },
+          "marketDemand": {
+            "type": "object",
+            "properties": {
+              "demandLevel": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              },
+              "supplyLevel": {
+                "type": "string",
+                "enum": ["low", "medium", "high"]
+              },
+              "marketScore": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          },
+          "bestTimeToBuy": {
+            "type": "object",
+            "properties": {
+              "season": {
+                "type": "string",
+                "example": "winter"
+              },
+              "reasoning": {
+                "type": "string"
+              },
+              "discountPercentage": {
+                "type": "number"
+              }
+            }
+          },
+          "dealerInventory": {
+            "type": "object",
+            "properties": {
+              "availableUnits": {
+                "type": "number"
+              },
+              "averagePrice": {
+                "type": "number"
+              },
+              "priceRange": {
+                "type": "object",
+                "properties": {
+                  "min": {
+                    "type": "number"
+                  },
+                  "max": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "marketInsights": {
+            "type": "object",
+            "properties": {
+              "lastUpdated": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "insights": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "carId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "rating": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "pros": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "helpfulCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ForumPost": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "carId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "example": "general"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "views": {
+            "type": "number"
+          },
+          "isSolved": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MaintenanceGuide": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "carId": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "example": "engine"
+          },
+          "difficulty": {
+            "type": "string",
+            "enum": ["beginner", "intermediate", "advanced"]
+          },
+          "estimatedTime": {
+            "type": "string",
+            "example": "2 hours"
+          },
+          "tools": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "stepNumber": {
+                  "type": "number"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "imageUrl": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "verifiedBy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "views": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FuelEconomyReport": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "carId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "fuelConsumption": {
+            "type": "object",
+            "properties": {
+              "city": {
+                "type": "number",
+                "example": 25.5
+              },
+              "highway": {
+                "type": "number",
+                "example": 32.1
+              },
+              "combined": {
+                "type": "number",
+                "example": 28.3
+              }
+            }
+          },
+          "drivingConditions": {
+            "type": "object",
+            "properties": {
+              "terrain": {
+                "type": "string",
+                "example": "urban"
+              },
+              "climate": {
+                "type": "string",
+                "example": "temperate"
+              },
+              "traffic": {
+                "type": "string",
+                "enum": ["light", "moderate", "heavy"]
+              }
+            }
+          },
+          "likes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "helpfulCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CommonIssue": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "carId": {
+            "type": "string"
+          },
+          "reportedBy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "example": "engine"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["open", "resolved", "investigating"]
+          },
+          "solutions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                },
+                "steps": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "estimatedCost": {
+                  "type": "number"
+                },
+                "difficulty": {
+                  "type": "string",
+                  "enum": ["beginner", "intermediate", "advanced"]
+                },
+                "likes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "helpfulCount": {
+                  "type": "number"
+                },
+                "verifiedBy": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "verifiedBy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+} 

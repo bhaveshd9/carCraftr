@@ -1,24 +1,25 @@
 // src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
-import Compare from './pages/Compare';
-import NewsPage from './pages/NewsPage';
-import BlogsPage from './pages/BlogsPage';
-import NewsDetail from './components/NewsDetail';
-import './App.css';
-import logo from './/logo.png';
 import SearchResults from './pages/SearchResults';
-import CarSpecs from './components/CarSpecs';
+import Compare from './pages/Compare';
+import BlogDetail from './components/BlogDetail';
+import CarDetail from './components/CarDetail';
+import './App.css';
+import logo from './logo.png';
+import BlogsPage from './pages/BlogsPage';
+import NewsPage from './pages/NewsPage';
+import NewsDetail from './components/NewsDetail';
 
 const App = () => {
   return (
     <Router>
       <header className="header">
-      <Link to="/" className="logo-link">
-      <img src={logo} alt="CarCrafter" className="logo" />
-      <h3>CarCraftr</h3>
-      </Link>
+        <Link to="/" className="logo-link">
+          <img src={logo} alt="CarCrafter" className="logo" />
+          <h3>CarCraftr</h3>
+        </Link>
       </header>
       
       <nav>
@@ -33,12 +34,13 @@ const App = () => {
       <div className="content">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/search" element={<SearchResults />} />
           <Route path="/compare" element={<Compare />} />
           <Route path="/news" element={<NewsPage />} />
           <Route path="/blogs" element={<BlogsPage />} />
-          <Route path="/search-results" element={<SearchResults />} /> 
-          <Route path="/car/:id" element={<CarSpecs />} />
           <Route path="/news/:id" element={<NewsDetail />} />
+          <Route path="/blogs/:id" element={<BlogDetail />} />
+          <Route path="/car/:id" element={<CarDetail />} />
         </Routes>
       </div>
     </Router>

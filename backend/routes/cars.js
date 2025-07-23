@@ -137,4 +137,114 @@ async function getCar(req, res, next) {
   next();
 }
 
+// Add this new route for car recommendations
+router.post('/recommend', async (req, res) => {
+  try {
+    const {
+      budget,
+      primaryUse,
+      fuelPreference,
+      mustHaveFeatures,
+      lifestyle,
+      familySize
+    } = req.body;
+
+    // Get all cars
+    const cars = await Car.find();
+
+    // Score each car based on preferences
+    const scoredCars = cars.map(car => {
+      let score = 0;
+      let matchReasons = [];
+
+      // Budget match
+      const carPrice = car.basePrice;
+      if (carPrice >= budget[0] && carPrice <= budget[1]) {
+        score += 30;
+        matchReasons.push(`Fits your budget of $${budget[0].toLocaleString()} - $${budget[1].toLocaleString()}`);
+      }
+
+      // Primary use match
+      if (primaryUse) {
+        const useMatches = {
+          commuting: ['Sedan', 'Hatchback'],
+          family: ['SUV', 'Minivan'],
+          luxury: ['Sedan', 'SUV'],
+          performance: ['Coupe', 'Sedan'],
+          adventure: ['SUV', 'Truck']
+        };
+
+        if (useMatches[primaryUse].includes(car.type)) {
+          score += 20;
+          matchReasons.push(`Perfect for ${primaryUse.replace('_', ' ')}`);
+        }
+      }
+
+      // Fuel preference match
+      if (fuelPreference) {
+        const hasMatchingVariant = car.variants.some(variant => 
+          variant.specifications.fuelType.toLowerCase() === fuelPreference.toLowerCase()
+        );
+        if (hasMatchingVariant) {
+          score += 15;
+          matchReasons.push(`Available in ${fuelPreference}`);
+        }
+      }
+
+      // Must-have features match
+      if (mustHaveFeatures && mustHaveFeatures.length > 0) {
+        const matchingFeatures = car.variants[0].specifications.infotainment
+          .concat(car.variants[0].specifications.comfortFeatures)
+          .filter(feature => mustHaveFeatures.includes(feature));
+        
+        if (matchingFeatures.length > 0) {
+          score += matchingFeatures.length * 5;
+          matchReasons.push(`Includes ${matchingFeatures.join(', ')}`);
+        }
+      }
+
+      // Lifestyle match
+      if (lifestyle) {
+        const lifestyleMatches = {
+          urban: ['Sedan', 'Hatchback'],
+          suburban: ['SUV', 'Sedan'],
+          rural: ['SUV', 'Truck'],
+          active: ['SUV', 'Crossover'],
+          luxury: ['Sedan', 'SUV']
+        };
+
+        if (lifestyleMatches[lifestyle].includes(car.type)) {
+          score += 15;
+          matchReasons.push(`Suited for ${lifestyle.replace('_', ' ')} lifestyle`);
+        }
+      }
+
+      // Family size match
+      if (familySize) {
+        const seatingCapacity = car.variants[0].specifications.seatingCapacity;
+        if (seatingCapacity >= familySize) {
+          score += 20;
+          matchReasons.push(`Seats ${seatingCapacity} people comfortably`);
+        }
+      }
+
+      return {
+        ...car.toObject(),
+        matchScore: Math.min(100, score),
+        matchReasons
+      };
+    });
+
+    // Sort by match score and return top 5
+    const recommendations = scoredCars
+      .sort((a, b) => b.matchScore - a.matchScore)
+      .slice(0, 5);
+
+    res.json(recommendations);
+  } catch (error) {
+    console.error('Error getting recommendations:', error);
+    res.status(500).json({ message: 'Error getting recommendations' });
+  }
+});
+
 module.exports = router;
